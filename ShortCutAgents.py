@@ -61,25 +61,26 @@ class SARSAAgent(object):
             action = np.argmax(self.Q[state])
         return action
         
-    def update(self, state, action, reward, done): # Augment arguments if necessary
-        next_action = self.select_action(state)
-        target = reward + self.gamma * self.Q[state, next_action]
+    def update(self, state, action, reward, next_state, next_action, done):
+        target = reward + self.gamma * self.Q[next_state, next_action]
         self.Q[state, action] += self.alpha * (target - self.Q[state, action])
-        
+
 
     def train(self, n_episodes, env):
         episode_returns = []
         for episode in range(n_episodes):
             state = env.reset()
+            action = self.select_action(state)
             done = False
             episode_return = 0
             while not done:
-                action = self.select_action(state)
                 reward = env.step(action)
                 next_state = env.state()
                 done = env.done()
-                self.update(state, action, reward, done)
+                next_action = self.select_action(next_state)
+                self.update(state, action, reward, next_state, next_action, done)
                 state = next_state
+                action = next_action
                 episode_return += reward
             episode_returns.append(episode_return)
         return episode_returns
@@ -118,7 +119,7 @@ class ExpectedSARSAAgent(object):
         # TO DO: Implement Expected SARSA update
 
     def train(self, n_episodes, env):
-                episode_returns = []
+        episode_returns = []
         for episode in range(n_episodes):
             state = env.reset()
             done = False

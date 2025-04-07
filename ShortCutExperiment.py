@@ -53,7 +53,7 @@ def smooth(y, window, poly=1):
 
 if __name__ == "__main__":
     # Let op wanneer er windy moet staan
-    run_repititions(agent = "QLearningAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
-    #run_repititions("SARSAAgent", n_reps, n_episodes, alpha_values, epsilon, ShortcutEnvironment())
+    #run_repititions(agent = "QLearningAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
+    run_repititions(agent = "SARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
     #run_repititions("ExpectedSARSAAgent", n_reps, n_episodes, alpha_values, epsilon, ShortcutEnvironment())
     #run_repititions("nStepSARSAAgent", n_reps, n_episodes, alpha_values, epsilon, ShortcutEnvironment())
