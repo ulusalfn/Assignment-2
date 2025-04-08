@@ -17,12 +17,16 @@ def run_repititions(agent, n_reps, n_episodes, alpha_values, epsilon, env):
             print(f"Agent: {agent}")
             if agent == "QLearningAgent": 
                 current_agent = ShortCutAgents.QLearningAgent(env.action_size(), env.state_size(), epsilon, alpha)
+                name = "Q-learning"
             elif agent == "SARSAAgent":
                 current_agent = ShortCutAgents.SARSAAgent(env.action_size(), env.state_size(), epsilon, alpha)
+                name = "SARSA"
             elif agent == "ExpectedSARSAAgent":
                 current_agent = ShortCutAgents.ExpectedSARSAAgent(env.action_size(), env.state_size(), epsilon, alpha)
+                name = "Expected SARSA"
             elif agent == "nStepSARSAAgent":
                 current_agent = ShortCutAgents.nStepSARSAAgent(env.action_size(), env.state_size(), epsilon, alpha)
+                name = "n-step SARSA"
             else:
                 raise ValueError("Unknown agent type")
             episode_returns = current_agent.train(n_episodes, env)
@@ -35,13 +39,20 @@ def run_repititions(agent, n_reps, n_episodes, alpha_values, epsilon, env):
         plt.plot(smooth(mean_rewards, 31), label=f"alpha={alpha}")
         final_env.render_greedy(final_agent.Q)
 
-
-    plt.title(f"Learning curves for {agent}")
-    plt.xlabel("Episodes")
-    plt.ylabel("Mean reward")
-    plt.legend()
-    plt.savefig(f"LearningCurves_{agent}.png")
-    plt.show()    
+    if final_env == WindyShortcutEnvironment():
+        plt.title(f"Learning curve for {name} in Windy environment")
+        plt.xlabel("Episodes")
+        plt.ylabel("Mean reward")
+        plt.legend()
+        plt.savefig(f"LearningCurves_{name}_Windy.png")
+        plt.show()
+    else:
+        plt.title(f"Learning curves for {name}")
+        plt.xlabel("Episodes")
+        plt.ylabel("Mean reward")
+        plt.legend()
+        plt.savefig(f"LearningCurves_{name}.png")
+        plt.show()    
 
 
 def smooth(y, window, poly=1):
@@ -52,8 +63,19 @@ def smooth(y, window, poly=1):
 
 
 if __name__ == "__main__":
-    # Let op wanneer er windy moet staan
+    #greedy policies
+    #run_repititions(agent = "QLearningAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
+    #run_repititions(agent = "SARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
+    #run_repititions(agent = "ExpectedSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
+    #run_repititions(agent = "nStepSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
+    
+
+    #learning curves
     #run_repititions(agent = "QLearningAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
-    run_repititions(agent = "SARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
-    #run_repititions("ExpectedSARSAAgent", n_reps, n_episodes, alpha_values, epsilon, ShortcutEnvironment())
-    #run_repititions("nStepSARSAAgent", n_reps, n_episodes, alpha_values, epsilon, ShortcutEnvironment())
+    #run_repititions(agent = "SARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
+    #run_repititions(agent = "ExpectedSARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
+    #run_repititions(agent = "nStepSARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
+
+    #Windy environment
+    #run_repititions(agent = "QLearningAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = WindyShortcutEnvironment())
+    run_repititions(agent = "SARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = WindyShortcutEnvironment())

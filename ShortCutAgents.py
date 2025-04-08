@@ -105,13 +105,13 @@ class ExpectedSARSAAgent(object):
             action = np.argmax(self.Q[state])
         return action
         
-    def update(self, state, action, reward, done): # Augment arguments if necessary
+    def update(self, state, action, reward, next_state, done): # Augment arguments if necessary
         if done:
             expected_Q = 0 # no future rewards if terminal state
         else:
             policy_probs = np.ones(self.n_actions) * self.epsilon / self.n_actions # exploration distribution
-            policy_probs[np.argmax(self.Q[state])] += 1 - self.epsilon # greedy action
-            expected_Q= np.sum(policy_probs * self.Q[state])
+            policy_probs[np.argmax(self.Q[next_state])] += 1 - self.epsilon # greedy action
+            expected_Q= np.sum(policy_probs * self.Q[next_state])
         
         # update Q
         target = reward + self.gamma * expected_Q
@@ -129,7 +129,7 @@ class ExpectedSARSAAgent(object):
                 reward = env.step(action)
                 next_state = env.state()
                 done = env.done()
-                self.update(state, action, reward, done)
+                self.update(state, action, reward, next_state, done)
                 state = next_state
                 episode_return += reward
             episode_returns.append(episode_return)
