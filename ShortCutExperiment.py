@@ -73,9 +73,9 @@ if __name__ == "__main__":
     #learning curves
     #run_repititions(agent = "QLearningAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
     #run_repititions(agent = "SARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
-    #run_repititions(agent = "ExpectedSARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
+    run_repititions(agent = "ExpectedSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
     #run_repititions(agent = "nStepSARSAAgent", n_reps = 100, n_episodes = 1000, alpha_values =[0.01, 0.1, 0.5, 0.9], epsilon = 0.1, env = ShortcutEnvironment())
 
     #Windy environment
     #run_repititions(agent = "QLearningAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = WindyShortcutEnvironment())
-    run_repititions(agent = "SARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = WindyShortcutEnvironment())
+    #run_repititions(agent = "SARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = WindyShortcutEnvironment())
