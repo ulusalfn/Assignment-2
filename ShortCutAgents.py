@@ -160,64 +160,73 @@ class nStepSARSAAgent(object):
         
         return action
         
-    def update(self, states, actions, rewards, done): # Augment arguments if necessary
+    def update(self, states, actions, rewards, done, next_state, next_action): # Augment arguments if necessary
         # TO DO: Implement n-step SARSA update
         G = 0
+        print(states)
         #print(rewards)
         for t in range(len(rewards)):
             #print("t: ", t)
             G += self.gamma**t * rewards[t]
             #print("G before boot =" ,G)
 
-        if not done and len(actions) == self.n + 1:
+        if not done:
             #and len(states) == self.n and len(actions) == self.n + 1:
             
-            G += (self.gamma**self.n) * self.Q[states[-1], actions[-1]]
+            G += (self.gamma**self.n) * self.Q[next_state, next_action]
             #print("G: ", G)
 
-        self.Q[states[0], actions[0]] = np.clip(self.Q[states[0], actions[0]] + self.alpha * (G - self.Q[states[0], actions[0]]), -100, 100)
+        s_0 = states[0]
+        a_0 = actions[0]
+        
+        self.Q[states[0], actions[0]] += self.alpha * (G - self.Q[states[0], actions[0]])
         #print("Q: ", self.Q[states[0], actions[0]])    
     
     def train(self, n_episodes, env):
         # TO DO: Implement the agent loop that trains for n_episodes. 
         # Return a vector with the the cumulative reward (=return) per episode
         episode_returns = []
-        self.n = 3
 
         for episode in range(n_episodes):
-            print(episode)
+            #print(episode)
             state = env.reset()
+            action = self.select_action(state)
             done = False
             episode_return = 0
-            self.states = []
-            self.actions = []
+            self.states = [state]
+            print("State: ", self.states)
+            self.actions = [action]
             self.rewards = []
 
             while not done:
-                action = self.select_action(state)
-                self.actions.append(action)
+                #action = self.select_action(state)
+                #self.actions.append(action)
 
                 reward = env.step(action)
                 next_state = env.state()
+                next_action = self.select_action(next_state)
+                
                 done = env.done()
-                self.states.append(state)
+                self.states.append(next_state)
+                self.actions.append(next_action)
                 self.rewards.append(reward)
+                episode_return += reward
 
                 if len(self.states) > self.n:
                     #print("Updating ", x)
-                    self.update(self.states[:self.n], self.actions[:self.n], self.rewards[:self.n], done)
+                    self.update(self.states[:self.n], self.actions[:self.n], self.rewards[:self.n], done, next_state, next_action)
 
                     self.states.pop(0)
                     self.actions.pop(0)
                     self.rewards.pop(0)
 
                 state = next_state
-                episode_return += reward
+                action = next_action
 
             while len(self.states) > 0:
 
                 n_steps = len(self.rewards)
-                self.update(self.states[:n_steps], self.actions[:n_steps], self.rewards[:n_steps], done)
+                self.update(self.states[:n_steps], self.actions[:n_steps], self.rewards[:n_steps], done, next_state, next_action)
 
                 self.states.pop(0)
                 self.actions.pop(0)
