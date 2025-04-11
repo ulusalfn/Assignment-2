@@ -94,6 +94,7 @@ class ExpectedSARSAAgent(object):
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
+        #print("Alpha is ", alpha)
 
         self.Q = np.zeros((n_states, n_actions))
         
@@ -139,13 +140,11 @@ class nStepSARSAAgent(object):
         self.n_actions = n_actions
         self.n_states = n_states
         self.n = n
-
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-
         self.Q = np.zeros((n_states, n_actions))
-        
+
     def select_action(self, state):
         action = None
         if np.random.rand() < self.epsilon:
@@ -177,7 +176,8 @@ class nStepSARSAAgent(object):
 
         for episode in range(n_episodes):
             state = env.reset()
-            done = False
+            action = self.select_action(state)
+            
             episode_return = 0
             states = []
             actions = []
@@ -202,6 +202,7 @@ class nStepSARSAAgent(object):
             while not done:
                 action = self.select_action(state)
                 reward = env.step(action)
+                done = env.done()
                 next_state = env.state()
                 done = env.done()
 
