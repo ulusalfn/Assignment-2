@@ -55,6 +55,48 @@ def run_repititions(agent, n_reps, n_episodes, alpha_values, epsilon, env):
         plt.show()    
 
 
+def run_repititions_nstep(agent, n_reps, n_episodes, alpha_values, epsilon, env, n_values):
+    """
+    Run the agent for n_reps repetitions in the environment env.
+    """
+    for alpha in alpha_values:
+        for n in n_values:
+            rewards = np.zeros((n_reps, n_episodes))
+            agente = agent
+            for rep in range(n_reps):
+                print(f"Running repetition {rep+1} of {n_reps} for n {n} and alpha {alpha}")
+                print(f"Agent: {agent}")
+                if agent == "nStepSARSAAgent":
+                    current_agent = ShortCutAgents.nStepSARSAAgent(env.action_size(), env.state_size(), epsilon, alpha, n)
+                    name = "n-step SARSA"
+                else:
+                    raise ValueError("Unknown agent type")
+                episode_returns = current_agent.train(n_episodes, env)
+                rewards[rep] = episode_returns
+
+                final_agent = current_agent
+                final_env = env
+        
+        mean_rewards = np.mean(rewards, axis=0)
+        plt.plot(smooth(mean_rewards, 31), label=f"n={n}")
+        final_env.render_greedy(final_agent.Q)
+
+    if final_env == WindyShortcutEnvironment():
+        plt.title(f"Learning curve for {name} in Windy environment")
+        plt.xlabel("Episodes")
+        plt.ylabel("Mean reward")
+        plt.legend()
+        plt.savefig(f"LearningCurves_{name}_Windy.png")
+        plt.show()
+    else:
+        plt.title(f"Learning curves for {name}")
+        plt.xlabel("Episodes")
+        plt.ylabel("Mean reward")
+        plt.legend()
+        plt.savefig(f"LearningCurves_{name}.png")
+        plt.show()    
+
+
 def smooth(y, window, poly=1):
     '''
     y: vector to be smoothed 
@@ -66,8 +108,8 @@ if __name__ == "__main__":
     #greedy policies
     #run_repititions(agent = "QLearningAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
     #run_repititions(agent = "SARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
-    #run_repititions(agent = "ExpectedSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
-    #run_repititions(agent = "nStepSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
+    run_repititions(agent = "ExpectedSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.1], epsilon = 0.1, env = ShortcutEnvironment())
+    #run_repititions_nstep(agent = "nStepSARSAAgent", n_reps = 1, n_episodes = 10000, alpha_values =[0.01], epsilon = 0.1, env = ShortcutEnvironment(), n_values=[3])
     
 
     #learning curves
