@@ -134,7 +134,7 @@ class ExpectedSARSAAgent(object):
 
 class nStepSARSAAgent(object):
 
-    def __init__(self, n_actions, n_states, epsilon=0.1, alpha=0.1, gamma=0.5, n=0):
+    def __init__(self, n_actions, n_states, epsilon=0.1, alpha=0.1, gamma=0.5, n=3):
         
         self.n_actions = n_actions
         self.n_states = n_states
@@ -147,84 +147,85 @@ class nStepSARSAAgent(object):
         self.Q = np.zeros((n_states, n_actions))
         
     def select_action(self, state):
-        # TO DO: Implement policy
         action = None
         if np.random.rand() < self.epsilon:
-            action = np.random.randint(self.n_actions) # Explore
+            action = np.random.randint(self.n_actions)
         else:
-            action = np.argmax(self.Q[state]) # Exploit
-        
+            action = np.argmax(self.Q[state])
         return action
         
-    def update(self, states, actions, rewards, done): # Augment arguments if necessary
-        # TO DO: Implement n-step SARSA update
+    def update(self, states, actions, rewards, done): 
         G = 0
-        #print(rewards)
         for t in range(len(rewards)):
-            #print("t: ", t)
             G += self.gamma**t * rewards[t]
-            #print("G before boot =" ,G)
 
-        if not done and len(actions) == self.n + 1:
-            #and len(states) == self.n and len(actions) == self.n + 1:
-            
-            G += (self.gamma**self.n) * self.Q[states[-1], actions[-1]]
-            #print("G: ", G)
+        if not done and len(actions) > self.n:
+            bootstrapped = (self.gamma**self.n) * self.Q[states[-1], actions[-1]]
+            G += bootstrapped
+            print(f"[update] Bootstrapped Q[{states[-1]}, {actions[-1]}]: {bootstrapped}")
 
-        self.Q[states[0], actions[0]] = np.clip(self.Q[states[0], actions[0]] + self.alpha * (G - self.Q[states[0], actions[0]]), -100, 100)
-        #print("Q: ", self.Q[states[0], actions[0]])    
-    
+        target = G
+        old_q = self.Q[states[0], actions[0]]
+        new_q = old_q + self.alpha * (target - old_q)
+
+        print(f"[update] G: {G}, Q[{states[0]}, {actions[0]}] old: {old_q}, new: {new_q}")
+
+        self.Q[states[0], actions[0]] = new_q
+
     def train(self, n_episodes, env):
-        # TO DO: Implement the agent loop that trains for n_episodes. 
-        # Return a vector with the the cumulative reward (=return) per episode
         episode_returns = []
-        self.n = 3
 
         for episode in range(n_episodes):
-            print(episode)
             state = env.reset()
             done = False
             episode_return = 0
-            self.states = []
-            self.actions = []
-            self.rewards = []
+            states = []
+            actions = []
+            rewards = []
 
+            # Take n+1 actions before the first update
+            for _ in range(self.n + 1):
+                if not done:
+                    action = self.select_action(state)
+                    reward = env.step(action)
+                    next_state = env.state()
+                    done = env.done()
+
+                    states.append(state)
+                    actions.append(action)
+                    rewards.append(reward)
+
+                    state = next_state
+                    episode_return += reward
+
+            # Perform updates as the episode progresses
             while not done:
                 action = self.select_action(state)
-                self.actions.append(action)
-
                 reward = env.step(action)
                 next_state = env.state()
                 done = env.done()
-                self.states.append(state)
-                self.rewards.append(reward)
 
-                if len(self.states) > self.n:
-                    #print("Updating ", x)
-                    self.update(self.states[:self.n], self.actions[:self.n], self.rewards[:self.n], done)
+                states.append(state)
+                actions.append(action)
+                rewards.append(reward)
 
-                    self.states.pop(0)
-                    self.actions.pop(0)
-                    self.rewards.pop(0)
+                self.update(states[:self.n], actions[:self.n], rewards[:self.n], done)
+
+                states.pop(0)
+                actions.pop(0)
+                rewards.pop(0)
 
                 state = next_state
                 episode_return += reward
 
-            while len(self.states) > 0:
+            # Perform updates for the remaining state-action pairs after the episode ends
+            while len(states) > 0:
+                n_steps = len(rewards)
+                self.update(states[:n_steps], actions[:n_steps], rewards[:n_steps], done)
+                states.pop(0)
+                actions.pop(0)
+                rewards.pop(0)
 
-                n_steps = len(self.rewards)
-                self.update(self.states[:n_steps], self.actions[:n_steps], self.rewards[:n_steps], done)
-
-                self.states.pop(0)
-                self.actions.pop(0)
-                self.rewards.pop(0)
-            
-
-            #print("Episode: ", episode, "Return: ", episode_return)
             episode_returns.append(episode_return)
-            #print(episode_return)
             
-        return episode_returns  
-    
-    
-    
+        return episode_returns
